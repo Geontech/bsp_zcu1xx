@@ -6,6 +6,6 @@ Libraries=axi zynq_ultra sdp
 
 Configurations=base
 
-ExportFiles=zcu111.mk
+ExportFiles=zcu111.mk zcu111.xdc zcu111_bit.xdc
 
 include $(OCPI_CDK_DIR)/include/hdl/hdl-platform.mk

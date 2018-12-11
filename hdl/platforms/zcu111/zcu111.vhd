@@ -39,11 +39,19 @@ begin
   timebase_out.clk   <= clk;
   timebase_out.reset <= reset;
   timebase_out.ppsIn <= '0';
-  led <= (others => '0');
+
+  led(0) <= '0';
+  led(1) <= '1';
+  led(2) <= '1';
+  led(3) <= '0';
+  led(4) <= '1';
+  led(5) <= '0';
+  led(6) <= '1';
+  led(7) <= '0';
 
   clkbuf : BUFG
     port map(
-      I => fclk(1),
+      I => fclk(0),
       O => clk);
   -- The FCLKRESET signals from the PS are documented as asynchronous with the
   -- associated FCLK for whatever reason.  Here we make a synchronized reset from it.

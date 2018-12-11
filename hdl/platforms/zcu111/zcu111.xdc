@@ -1,7 +1,9 @@
 create_clock -name clk_fpga_0 -period 10.000 [get_pins {ftop/pfconfig_i/zcu111_i/worker/ps/ps/PS8_i/PLCLK[0]}]
 #create_clock -name clk_fpga_0 -period 10.000 [get_pins {ftop/pfconfig_i/zcu111_i/worker/ps/ps/PS8_i/FCLKCLK[0]}]
 
-set_property DONT_TOUCH true [get_cells "ftop/pfconfig_i/zcu111_i/worker/ps/ps/PS8_i"]
+## This line below makes write_bitstream fail with:
+## ERROR: [DRC RTSTAT-1] Unrouted nets: 1 net(s) are unrouted. The problem bus(es) and/or net(s) are ftop/pfconfig_i/zcu111_i/worker/ps/ps/pl_clk0.
+#set_property DONT_TOUCH true [get_cells "ftop/pfconfig_i/zcu111_i/worker/ps/ps/PS8_i"]
 ############################################################################
 ##
 ##   ZCU111 Rev1.0 - Master XDC 05/30/2018

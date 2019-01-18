@@ -38,17 +38,12 @@ architecture rtl of zcu102_worker is
   signal ledbuf           : std_logic_vector(2 downto 0) := (others => '0');
   signal cp_out_buf       : occp_in_t;
 
-signal cnt_t    : STD_LOGIC_VECTOR(31 DOWNTO 0) := x"0000_0000";
-
+  signal cnt_t    : STD_LOGIC_VECTOR(31 DOWNTO 0) := x"0000_0000";
 begin
   timebase_out.clk   <= clk;
   timebase_out.reset <= reset;
   timebase_out.ppsIn <= '0';
 
-
-  led(0) <= ledbuf(0);
-  led(1) <= ledbuf(1);
-  led(2) <= ledbuf(2);
   led(3) <= cp_out_buf.data(0);
   cp_out <= cp_out_buf;
   led(4) <= reset;
@@ -56,7 +51,7 @@ begin
   led(6) <= '1';
   led(7) <= '1';
 
-process (clk) IS
+process (clk) is
 begin
     if rising_edge(clk)  then
         if (reset ='1') then
@@ -111,8 +106,9 @@ end process;
       s_axi_hp_in           => ps_s_axi_hp_in,
       s_axi_hp_out          => ps_s_axi_hp_out);
 
+  -- Adapt the control plane's M_AXI_GP to ZynqMP's M_AXI_HP
   m : for i in 0 to C_M_AXI_HP_COUNT-1 generate
-    g2h : m_gp2hp
+    g2h : m_axi_gp2hp
     port map(
       gp_in  => ps_m_axi_gp_in(i),
       gp_out => ps_m_axi_gp_out(i),

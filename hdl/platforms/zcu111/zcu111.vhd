@@ -35,19 +35,50 @@ architecture rtl of zcu111_worker is
   signal dbg_state_r      : ulonglong_array_t(0 to 3);
   signal dbg_state1_r     : ulonglong_array_t(0 to 3);
   signal dbg_state2_r     : ulonglong_array_t(0 to 3);
+  signal ledbuf           : std_logic_vector(2 downto 0) := (others => '0');
+  signal cp_out_buf       : occp_in_t;
+
+  signal cnt_t    : STD_LOGIC_VECTOR(31 DOWNTO 0) := x"0000_0000";
 begin
   timebase_out.clk   <= clk;
   timebase_out.reset <= reset;
   timebase_out.ppsIn <= '0';
 
-  led(0) <= '0';
-  led(1) <= '1';
-  led(2) <= '1';
-  led(3) <= '0';
-  led(4) <= '1';
+  led(3) <= cp_out_buf.data(0);
+  cp_out <= cp_out_buf;
+  led(4) <= reset;
   led(5) <= '0';
   led(6) <= '1';
-  led(7) <= '0';
+  led(7) <= '1';
+
+process (clk) is
+begin
+    if rising_edge(clk)  then
+        if (reset ='1') then
+          cnt_t <= x"0000_0000";
+          ledbuf(0) <= '0';
+          ledbuf(1) <= '0';
+          ledbuf(2) <= '0';
+        elsif (cnt_t = x"02FA_F080") then -- 0.5 second
+            cnt_t <= std_logic_vector(unsigned(cnt_t) + 1);
+            ledbuf(0) <= not ledbuf(0);
+        elsif (cnt_t = x"05F5_E100") then --   1 second
+            cnt_t <= std_logic_vector(unsigned(cnt_t) + 1);
+            ledbuf(0) <= not ledbuf(0);
+            ledbuf(1) <= not ledbuf(1);
+        elsif (cnt_t = x"08F0_D180") then -- 1.5 second
+            cnt_t <= std_logic_vector(unsigned(cnt_t) + 1);
+            ledbuf(0) <= not ledbuf(0);
+        elsif (cnt_t = x"0BEB_C200") then --   2 second
+            cnt_t <= x"0000_0000";
+            ledbuf(0) <= not ledbuf(0);
+            ledbuf(1) <= not ledbuf(1);
+            ledbuf(2) <= not ledbuf(2);
+        else
+            cnt_t <= std_logic_vector(unsigned(cnt_t) + 1);
+        end if;
+    end if;
+end process;
 
   clkbuf : BUFG
     port map(
@@ -75,8 +106,9 @@ begin
       s_axi_hp_in           => ps_s_axi_hp_in,
       s_axi_hp_out          => ps_s_axi_hp_out);
 
+  -- Adapt the control plane's M_AXI_GP to ZynqMP's M_AXI_HP
   m : for i in 0 to C_M_AXI_HP_COUNT-1 generate
-    g2h : m_gp2hp
+    g2h : m_axi_gp2hp
     port map(
       gp_in  => ps_m_axi_gp_in(i),
       gp_out => ps_m_axi_gp_out(i),
@@ -92,7 +124,7 @@ begin
       axi_in  => ps_m_axi_gp_out(whichGP),
       axi_out => ps_m_axi_gp_in(whichGP),
       cp_in   => cp_in,
-      cp_out  => cp_out);
+      cp_out  => cp_out_buf);
   zynq_ultra_out               <= my_zynq_ultra_out;
   zynq_ultra_out_data          <= my_zynq_ultra_out_data;
   props_out.sdpDropCount <= zynq_ultra_in(0).dropCount;

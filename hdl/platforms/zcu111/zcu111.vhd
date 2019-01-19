@@ -13,14 +13,14 @@ library bsv;
 library sdp; use sdp.sdp.all, sdp.sdp_axi.all;
 architecture rtl of zcu111_worker is
   constant whichGP : natural := to_integer(unsigned(from_bool(useGP1)));
-  signal ps_m_axi_hp_in  : m_axi_hp_in_array_t(0 to C_M_AXI_HP_COUNT-1);  -- s2m
-  signal ps_m_axi_hp_out : m_axi_hp_out_array_t(0 to C_M_AXI_HP_COUNT-1); -- m2s
+  signal ps_m_axi_hp_in  : m_axi_hp_in_array_t(0 to C_M_AXI_HP_COUNT-1);         -- s2m
+  signal ps_m_axi_hp_out : m_axi_hp_out_array_t(0 to C_M_AXI_HP_COUNT-1);        -- m2s
 
-  signal ps_m_axi_gp_in  : m_axi_gp_in_array_t(0 to C_M_AXI_HP_COUNT-1);  -- s2m
-  signal ps_m_axi_gp_out : m_axi_gp_out_array_t(0 to C_M_AXI_HP_COUNT-1); -- m2s
+  signal ps_m_axi_gp_in  : m_axi_gp_in_array_t(0 to C_M_AXI_HP_COUNT-1);         -- s2m
+  signal ps_m_axi_gp_out : m_axi_gp_out_array_t(0 to C_M_AXI_HP_COUNT-1);        -- m2s
 
-  signal ps_s_axi_hp_in  : s_axi_hp_in_array_t(0 to C_S_AXI_HP_COUNT-1);  -- m2s
-  signal ps_s_axi_hp_out : s_axi_hp_out_array_t(0 to C_S_AXI_HP_COUNT-1); -- s2m
+  signal ps_s_axi_hp_in  : s_axi_hp_in_addr36_array_t(0 to C_S_AXI_HP_COUNT-1);  -- m2s
+  signal ps_s_axi_hp_out : s_axi_hp_out_array_t(0 to C_S_AXI_HP_COUNT-1);        -- s2m
   signal fclk             : std_logic_vector(3 downto 0);
   signal clk              : std_logic;
   signal raw_rst_n     : std_logic;     -- FCLKRESET_Ns need synchronization

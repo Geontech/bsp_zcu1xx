@@ -13,7 +13,9 @@
   </Device>
 
   <!-- Put any additional platform-specific properties here using <Property> -->
-  <Property name='useGP1' type='bool' parameter='1' default='false'/>
+  <!-- The property below is used on Zynq platforms but requires the PS/SW to detect this property's value.
+       This is not yet suppported on ZynqMP/UltraScale+-->
+  <!--<Property name='useGP1' type='bool' parameter='1' default='false'/>-->
   <Property name='axi_error' type='bool' arraylength='4' volatile='true'/>
   <Property name='sdpDropCount' type='uchar' volatile='true'/>
   <!-- Put any built-in (always present) devices here using <device> -->

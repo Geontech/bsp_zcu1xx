@@ -12,7 +12,10 @@ library unisim; use unisim.vcomponents.all;
 library bsv;
 library sdp; use sdp.sdp.all, sdp.sdp_axi.all;
 architecture rtl of zcu102_worker is
-  constant whichGP : natural := to_integer(unsigned(from_bool(useGP1)));
+  -- Note: useGP1/whichGP are used in Zynq platforms but require PS/SW to detect this property's value.
+  --       This is not yet supported on ZynqMP/UltraScale+, so it is tied to '0' to use GP0.
+  --constant whichGP : natural := to_integer(unsigned(from_bool(useGP1)));
+  constant whichGP : natural := to_integer(unsigned(from_bool('0')));
   signal ps_m_axi_hp_in  : m_axi_hp_in_array_t(0 to C_M_AXI_HP_COUNT-1);         -- s2m
   signal ps_m_axi_hp_out : m_axi_hp_out_array_t(0 to C_M_AXI_HP_COUNT-1);        -- m2s
 
@@ -36,7 +39,6 @@ architecture rtl of zcu102_worker is
   signal dbg_state1_r     : ulonglong_array_t(0 to 3);
   signal dbg_state2_r     : ulonglong_array_t(0 to 3);
   signal ledbuf           : std_logic_vector(2 downto 0) := (others => '0');
-  signal cp_out_buf       : occp_in_t;
 
   signal cnt_t    : STD_LOGIC_VECTOR(31 DOWNTO 0) := x"0000_0000";
 begin
@@ -44,15 +46,13 @@ begin
   timebase_out.reset <= reset;
   timebase_out.ppsIn <= '0';
 
-  led(3) <= cp_out_buf.data(0);
-  cp_out <= cp_out_buf;
-  led(4) <= reset;
-  led(5) <= '0';
-  led(6) <= '1';
-  led(7) <= '1';
-
-process (clk) is
-begin
+  led(0) <= ledbuf(0);
+  led(1) <= ledbuf(1);
+  led(2) <= ledbuf(2);
+  -- The process below toggles LEDs 0-2 at rates of 0.5, 1 and 2 seconds respectively
+  -- This allows for experimental verification that 'clk' is running at roughly 100MHz
+  process (clk) is
+  begin
     if rising_edge(clk)  then
         if (reset ='1') then
           cnt_t <= x"0000_0000";
@@ -66,10 +66,10 @@ begin
             cnt_t <= std_logic_vector(unsigned(cnt_t) + 1);
             ledbuf(0) <= not ledbuf(0);
             ledbuf(1) <= not ledbuf(1);
-        elsif (cnt_t = x"08F0_D180") then -- 1.5 second
+        elsif (cnt_t = x"08F0_D180") then -- 1.5 seconds
             cnt_t <= std_logic_vector(unsigned(cnt_t) + 1);
             ledbuf(0) <= not ledbuf(0);
-        elsif (cnt_t = x"0BEB_C200") then --   2 second
+        elsif (cnt_t = x"0BEB_C200") then --   2 seconds
             cnt_t <= x"0000_0000";
             ledbuf(0) <= not ledbuf(0);
             ledbuf(1) <= not ledbuf(1);
@@ -78,7 +78,15 @@ begin
             cnt_t <= std_logic_vector(unsigned(cnt_t) + 1);
         end if;
     end if;
-end process;
+  end process;
+
+  -- Some LED logic which is unecessary but may be useful for debugging
+  led(3) <= reset;
+  -- This pattern of LEDs makes it easy to experimentally determine which LED is index 0 vs 7 on the board
+  led(4) <= '1';
+  led(5) <= '0';
+  led(6) <= '1';
+  led(7) <= '1';
 
   clkbuf : BUFG
     port map(
@@ -97,8 +105,10 @@ end process;
   ps : zynq_ultra_ps_e
     port map(
       -- Signals from the PS used in the PL
-      ps_in.debug           => (31 => useGP1,
-                                others => '0'),
+      --   Note: useGP1 is used on Zynq platforms but requires the PS/SW to detect this property's value.
+      --         This is not yet suppported on ZynqMP/UltraScale, so it is tied to '0' to use GP0.
+      --     ps_in.debug           => (31 => useGP1, others => '0'),
+      ps_in.debug           => (others => '0'),
       ps_out.FCLK           => fclk,
       ps_out.FCLKRESET_N    => raw_rst_n,
       m_axi_hp_in           => ps_m_axi_hp_in,
@@ -124,13 +134,14 @@ end process;
       axi_in  => ps_m_axi_gp_out(whichGP),
       axi_out => ps_m_axi_gp_in(whichGP),
       cp_in   => cp_in,
-      cp_out  => cp_out_buf);
+      cp_out  => cp_out);
   zynq_ultra_out               <= my_zynq_ultra_out;
   zynq_ultra_out_data          <= my_zynq_ultra_out_data;
   props_out.sdpDropCount <= zynq_ultra_in(0).dropCount;
   props_out.debug_state  <= dbg_state_r;
   props_out.debug_state1 <= dbg_state1_r;
   props_out.debug_state2 <= dbg_state2_r;
+  -- Adapt the axi slave from the PS to be a SDP slave
   g : for i in 0 to 3 generate
     dp : sdp2axi
       generic map(ocpi_debug => true,

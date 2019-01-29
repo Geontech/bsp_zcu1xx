@@ -5,7 +5,7 @@
 # PackageName defaults to the name of the directory
 # PackagePrefix defaults to local
 # Package defaults to PackagePrefix.PackageName
-PackagePrefix=geontech
+PackagePrefix=com.geontech
 PackageName=bsp.zcu1xx
 
 

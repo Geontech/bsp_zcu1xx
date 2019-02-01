@@ -7,6 +7,7 @@ To get started with these BSPs the following reading order is recommended:
 
 1.  Overview of OpenCPI: http://opencpi.github.io/Overview.pdf
 2.  YUM/RPM Installation Guide: http://opencpi.github.io/RPM_Installation_Guide.pdf
+    - Note that this BSP project requires release_1.4_zynq_ultra RPMs. When following this guide do not use the release_1.4 .repo file and make sure you are installing RPMs delivered from Geon Technologies, LLC or built from the release_1.4_zynq_ultra of OpenCPI.
 3.  Getting Started Guide: http://opencpi.github.io/Getting_Started.pdf
 4.  Platform-specific Getting Started Guides
    - ZCU102 Getting Started Guide: https://github.com/Geontech/bsp_zcu1xx/blob/release_1.4_zynq_ultra/pdfs/ZCU102_Getting_Started_Guide.pdf

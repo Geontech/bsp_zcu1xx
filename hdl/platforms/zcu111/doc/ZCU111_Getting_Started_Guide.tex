@@ -1,0 +1,28 @@
+%\iffalse
+%This file is protected by Copyright. Please refer to the COPYRIGHT file
+%distributed with this source distribution.
+%
+%This file is part of OpenCPI <http://www.opencpi.org>
+%
+%OpenCPI is free software: you can redistribute it and/or modify it under the
+%terms of the GNU Lesser General Public License as published by the Free Software
+%Foundation, either version 3 of the License, or (at your option) any later
+%version.
+%
+%OpenCPI is distributed in the hope that it will be useful, but WITHOUT ANY
+%WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+%PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+%
+%You should have received a copy of the GNU Lesser General Public License along
+%with this program. If not, see <http://www.gnu.org/licenses/>.
+%\fi
+% This file uses the ZCU1XX generic getting started guide snippet
+% and sets some ZCU111 specific content
+\def\zcuxxx{zcu111}
+\def\ZCUxxx{ZCU111}
+\def\uart{JTAG UART}
+\def\bootswitch{As mentioned in Table 2-4 of Xilinx's UG1271, set SW6 to 1110 for SD card boot mode. This means that the SW6's switch labeled 1 is `ON' and 2, 3, and 4 are `OFF'. See Figure~\ref{fig:top}.}
+\def\tty{\code{\$ sudo screen /dev/ttyUSB1 115200}\\
+
+Note: connecting the \ZCUxxx{} to a host via USB-UART will result in 4 \code{ttyUSB*} files in \code{/dev/}. The 0th one is NOT the one of interest here. Use the 1st one instead.}
+\input{../../doc/ZCU1XX_Getting_Started_Guide.inc}

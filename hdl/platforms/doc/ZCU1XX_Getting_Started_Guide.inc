@@ -383,10 +383,7 @@ Note: The line in this output regarding the OCCP signature is printed because th
 \item Apply power to the \ZCUxxx{}
 \item Use a serial terminal application to establish a serial connection, for example:
 
-\begin{verbatim}
-$ sudo screen /dev/ttyUSB1 115200
-\end{verbatim}
-Note: connecting the \ZCUxxx{} to a host via USB-UART will result in 4 \code{ttyUSB*} files in \code{/dev/}. The 0th one is NOT the one of interest here. Use the 1st one instead.
+\tty
 
 \item After a successful boot to PetaLinux, login to the system, using  ``\textbf{root}'' for user name and password
 

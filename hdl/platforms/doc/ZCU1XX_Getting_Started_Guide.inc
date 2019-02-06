@@ -172,20 +172,32 @@ The \textit{core}, \textit{assets} and \textit{bsp\_zcu1xx} projects must be bui
 For this document, the projects should be built as follows:\\
 
 \begin{enumerate}
-	\item Build \code{core} for the \code{xilinx18\_2} RCC Platform and the \code{\zcuxxx{}} HDL Platform, but omit assemblies
-	\item Build \code{assets} for the \code{xilinx18\_2} RCC Platform and the \code{\zcuxxx{}} HDL Platform, but omit assemblies
-	\item Build the \code{bsp\_zcu1xx} project for these same platforms
-	\item Build the \code{testbias} assembly from the \code{assets} project. This will be used later in this guide.
+	\item \label{step:1:build} Build \code{core} for the \code{xilinx18\_2} RCC Platform and the \code{\zcuxxx{}} HDL Platform, but omit assemblies
+	\item \label{step:2:build} Build \code{assets} for the \code{xilinx18\_2} RCC Platform and the \code{\zcuxxx{}} HDL Platform, but omit assemblies
+	\item \label{step:3:build} Build the \code{bsp\_zcu1xx} project for these same platforms
+	\item \label{step:4:build} Build the \code{testbias} assembly from the \code{assets} project. This will be used later in this guide.
 		\subitem Once the HDL Platform is built in the BSP project, assemblies can be built for that HDL platform
 \end{enumerate}
+First, enter the directory containing the projects:\\\medskip
+When using an RPM installation:
 \texttt{\\
 \$ cd /home/<user>/ocpi\_projects/;\\
+}\smallskip
+Note: replace ``\code{<user>}'' with your username in the command above.\\\medskip
+
+When using a source installation:
+\texttt{\\
+\$ cd <path-to-opencpi>/projects/;\\
+}\medskip
+
+Next, perform steps \ref{step:1:build} through \ref{step:4:build} to build the projects for \code{xilinx18\_2} and \code{\zcuxxx{}}:
+\texttt{\\
 \$ ocpidev build -d core~~~~~~~-{}-rcc-platform xilinx18\_2~-{}-hdl-platform \zcuxxx{} -{}-no-assemblies;\\
 \$ ocpidev build -d assets~~~~~-{}-rcc-platform xilinx18\_2~-{}-hdl-platform \zcuxxx{} -{}-no-assemblies;\\
 \$ ocpidev build -d bsp\_zcu1xx~-{}-rcc-platform xilinx18\_2~-{}-hdl-platform \zcuxxx{};\\
 \$ ocpidev build -d assets hdl assembly testbias~~~~~~~~~-{}-hdl-platform \zcuxxx{};\\
-}
-Note: replace ``\code{<user>}'' with your username in the commands above.\\\medskip
+}\smallskip
+Note: when using a source OpenCPI installation, the directory option ``\code{-d bsp\_zcu1xx}'' will need to be changed to ``\code{-d bsps/bsp\_zcu1xx}'' since the project is cloned one directory deeper as per Appendix~\ref{sec:src-clone}.\\\medskip
 
 See the ANGRYVIPER Team's Getting Started Guide for additional information concerning the use of \code{ocpidev} to build OpenCPI assets.
 

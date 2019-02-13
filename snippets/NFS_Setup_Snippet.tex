@@ -27,41 +27,7 @@ with this program. If not, see <http://www.gnu.org/licenses/>.
 
 \subsection{Network Mounting Mode}
 \label{sec:network_mode}
-The NFS server needs to be enabled on the host in order to run the SDR in Network Mode. The following sections are directions on how to do this for both CentOS~6 and CentOS~7 host operating systems.
-\subsubsection{CentOS~6}
-% \begin{minipage}{\linewidth}
-From the host, install the necessary tools using yum:
-\begin{verbatim}
-% sudo yum install nfs-utils nfs-utils-lib
-% sudo chkconfig nfs on
-% sudo service rpcbind start
-% sudo service nfs start
-\end{verbatim}
-% \end{minipage}
-% ~\\
-
-% \begin{minipage}{\linewidth}
-From the host, add the following lines to the bottom of \texttt{/etc/exports} and change ``XX.XX.XX.XX/MM'' to a valid netmask for the DHCP range that the SDR will be set to for your network (\textit{e.g.} \texttt{192.168.0.0/16}).
-\begin{verbatim}
-% sudo vi /etc/exports
-
-/opt/opencpi XX.XX.XX.XX/MM(rw,sync,no_root_squash,no_subtree_check)
-<host core project location> XX.XX.XX.XX/MM(rw,sync,no_root_squash,no_subtree_check)
-<host assets project location> XX.XX.XX.XX/MM(rw,sync,no_root_squash,no_subtree_check)
-<optional - host bsp project location> XX.XX.XX.XX/MM(rw,sync,no_root_squash,no_subtree_check)
-
-% sudo exportfs -av
-\end{verbatim}
-% \end{minipage}
-% ~\\
-
-% \begin{minipage}{\linewidth}
-From the host, restart the services that have modified for the changes to take effect:
-\begin{verbatim}
-% sudo service nfs start
-\end{verbatim}
-% \end{minipage}
-
+The NFS server needs to be enabled on the host in order to run the SDR in Network Mode. The following sections are directions on how to do this for both CentOS~7 and CentOS~6 host operating systems.
 \subsubsection{CentOS~7}
 % \begin{minipage}{\linewidth}
 From the host, install the necessary tools using yum:\\
@@ -92,15 +58,16 @@ From the host, if \code{firewalld} is enabled and running, allow NFS past the fi
 % ~\\
 
 % \begin{minipage}{\linewidth}
-Define the export by creating a new file that has the extension ``\texttt{exports}''. If it does not have that extension, it will be ignored.  Add the following lines to that file and replace ``XX.XX.XX.XX/MM'' with a valid netmask for the DHCP range that the SDR will be set to for your network (\textit{e.g.} \texttt{192.168.0.0/16}).
+Define the export by creating a new file that has the extension ``\texttt{exports}''. If it does not have that extension, it will be ignored.  Add the following lines to that file and replace ``XX.XX.XX.XX/MM'' with a valid netmask for the DHCP range that the SDR will be set to for your network (\textit{e.g.} \texttt{192.168.0.0/16}). Also make sure to insert the proper locations for any OpenCPI projects as well as the OpenCPI installation. If using OpenCPI RPMs, the framework is installated at \path{/opt/opencpi}. For an OpenCPI source installation, this will be the path to the \code{opencpi} repository.
+
 \begin{verbatim}
 % sudo vi /etc/exports.d/user_ocpi.exports
 
-/opt/opencpi XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt)
-/home/<user>/ocpi_projects/core XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt)
-/home/<user>>/ocpi_projects/assets XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt)
+<path to opencpi installation>          XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt)
+<host core project location>            XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt)
+<host assets project location>          XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt)
 # If there is a BSP project for this platform:
-/home/<user>/ocpi_projects/bsp_XXXX XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt)
+<optional - host bsp project location>  XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt)
 \end{verbatim}
 % \end{minipage}
 % ~\\
@@ -110,11 +77,11 @@ If the file system that you are mounting is XFS, then each mount needs to have a
 \begin{verbatim}
 % sudo vi /etc/exports.d/user_ocpi.exports
 
-/opt/opencpi XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt,fsid=33)
-/home/<user>/ocpi_projects/core XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt,fsid=34)
-/home/<user>/ocpi_projects/assets XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt,fsid=35)
+<path to opencpi installation>          XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt,fsid=33)
+<host core project location>            XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt,fsid=34)
+<host assets project location>          XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt,fsid=35)
 # If there is a BSP project for this platform:
-/home/<user>/ocpi_projects/bsp_XXXX XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt,fsid=35)
+<optional - host bsp project location>  XX.XX.XX.XX/MM(rw,sync,no_root_squash,crossmnt,fsid=35)
 \end{verbatim}
 % \end{minipage}
 % ~\\
@@ -135,4 +102,39 @@ Restart the services that have modified for the changes to take effect:
 % ~\\
 
 * Note: Some of the ``sudo systemctl enable'' commands may fail based on your package selection, but should not cause any problems.
+
+\subsubsection{CentOS~6}
+% \begin{minipage}{\linewidth}
+From the host, install the necessary tools using yum:
+\begin{verbatim}
+% sudo yum install nfs-utils nfs-utils-lib
+% sudo chkconfig nfs on
+% sudo service rpcbind start
+% sudo service nfs start
+\end{verbatim}
+% \end{minipage}
+% ~\\
+
+% \begin{minipage}{\linewidth}
+From the host, add the following lines to the bottom of \texttt{/etc/exports} and change ``XX.XX.XX.XX/MM'' to a valid netmask for the DHCP range that the SDR will be set to for your network (\textit{e.g.} \texttt{192.168.0.0/16}). Also make sure to insert the proper locations for any OpenCPI projects as well as the OpenCPI installation. If using OpenCPI RPMs, the framework is installated at \path{/opt/opencpi}. For an OpenCPI source installation, this will be the path to the \code{opencpi} repository.
+\begin{verbatim}
+% sudo vi /etc/exports
+
+<path to opencpi installation>         XX.XX.XX.XX/MM(rw,sync,no_root_squash,no_subtree_check)
+<host core project location>           XX.XX.XX.XX/MM(rw,sync,no_root_squash,no_subtree_check)
+<host assets project location>         XX.XX.XX.XX/MM(rw,sync,no_root_squash,no_subtree_check)
+<optional - host bsp project location> XX.XX.XX.XX/MM(rw,sync,no_root_squash,no_subtree_check)
+
+% sudo exportfs -av
+\end{verbatim}
+% \end{minipage}
+% ~\\
+
+% \begin{minipage}{\linewidth}
+From the host, restart the services that have modified for the changes to take effect:
+\begin{verbatim}
+% sudo service nfs start
+\end{verbatim}
+% \end{minipage}
+
 \setlength{\parindent}{\savedparindentnfs}%

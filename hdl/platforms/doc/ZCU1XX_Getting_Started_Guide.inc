@@ -163,7 +163,8 @@ Project registry is located at: /opt/opencpi/cdk/../project-registry
 The platform that is expected to be used is Xilinx's \ZCUxxx{} Evaluation Board (\textit{e.g.} \code{\zcuxxx{}}). This OpenCPI-enabled platform provides the capability of deploying hardware and software workers while using Xilinx's 2018.2 distribution of Linux.\\ \bigskip
 
 \textbf{\textcolor{red}{IMPORTANT:} Use of OpenCPI on the \ZCUxxx{} requires Xilinx Vivado 2018.2 (including its SDK).}\\ \medskip
-The synthesizers and cross-compilers required to build HDL and RCC Workers for the \ZCUxxx{} are present in Xilinx Vivado 2018.2. The instructions found in the \textit{OpenCPI FPGA Vendor Tools Installation Guide} detail the process for installing older versions of Vivado, but can be still be useful as they include details for installation options and processes. This document assumes that the user has installed the appropriate versions of Vivado and the Xilinx SDK.
+The synthesizers and cross-compilers required to build HDL and RCC Workers for the \ZCUxxx{} are present in Xilinx Vivado 2018.2. The instructions found in the \href{https://opencpi.github.io/FPGA_Vendor_Tools_Installation_Guide.pdf}{\textit{OpenCPI FPGA Vendor Tools Installation Guide}} detail the process for installing older versions of Vivado, but can be still be useful as they include details for installation options and processes. Take special note of the environment variables that must be set such as \code{OCPI\_XILINX\_DIR}, \code{OCPI\_XILINX\_VERSION}, and \code{OCPI\_XILINX\_LICENSE\_FILE}. Make sure \textit{not} to have Vivado's ``\code{settings64.sh}'' script sourced in your terminal when using OpenCPI.\\\medskip
+This document assumes that the user has installed the appropriate versions of Xilinx Vivado and the Xilinx SDK.
 
 \subsection{Building Required Projects}
 \label{sec:Building OpenCPI projects}
@@ -281,6 +282,7 @@ There are two type of setups or modes for running applications on any embedded r
 For each mode, a startup script is used to configure the environment of the embedded system. The OpenCPI framework provides a default script for each mode. The default scripts are to be copied and then modified per the user's requirements.\par\medskip
 
 \subsubsection{Network Mode}
+\label{sec:net_scripts}
 1) Make a copy of the default script for editing (the name of the script ``\path{mynetsetup.sh}'' is important for proper execution):
 \begin{verbatim}
 $ cp /run/media/<user>/root/home/root/opencpi/default_mynetsetup.sh \
@@ -289,6 +291,15 @@ $ cp /run/media/<user>/root/home/root/opencpi/default_mynetsetup.sh \
 
 2) Edit the copy
 \begin{enumerate}
+\item If using a source-built installation of OpenCPI instead of an RPM installation, replace ``\path{/opt/opencpi}'' with the path to the \code{opencpi} repository on the host. For example, if the \code{opencpi} repository is located at \path{/home/johndoe/opencpi}, replace the line:
+\begin{verbatim}
+source /home/root/opencpi/zynqmp_net_setup.sh $1 /opt/opencpi cdk
+\end{verbatim}
+with:
+\begin{verbatim}
+source /home/root/opencpi/zynqmp_net_setup.sh $1 /home/johndoe/opencpi cdk
+\end{verbatim}
+
 \item In \texttt{mynetsetup.sh}, uncomment the following lines which are necessary for mounting \textit{core}, \textit{assets}, and \textit{bsp\_zcu1xx} projects:
 
 \begin{verbatim}
@@ -299,7 +310,7 @@ mount -t nfs -o udp,nolock,soft,intr $1:/home/<user>/ocpi_projects/assets /mnt/o
 mkdir -p /mnt/bsp_zcu1xx
 mount -t nfs -o udp,nolock,soft,intr $1:/home/<user>/ocpi_projects/bsp_zcu1xx /mnt/bsp_zcu1xx
 \end{verbatim}
- \item Edit \texttt{/home/<user>/ocpi\_projects/core} and \texttt{/home/<user>/ocpi\_projects/assets} to reflect the paths to the \textit{core}, \textit{assets}, and \textit{bsp\_zcu1xx} projects on the host, for example:
+\item Edit \texttt{/home/<user>/ocpi\_projects/core} and \texttt{/home/<user>/ocpi\_projects/assets} to reflect the paths to the \textit{core}, \textit{assets}, and \textit{bsp\_zcu1xx} projects on the host, for example:
 \begin{verbatim}
 mkdir -p /mnt/ocpi_core
 mount -t nfs -o udp,nolock,soft,intr $1:/home/johndoe/ocpi_projects/core /mnt/ocpi_core
@@ -328,12 +339,13 @@ Unlike Network mode, there is no required modifications to this script. \medskip
 
 \pagebreak
 \section{Development Host Setup - for Network Mode ONLY}
+\label{sec:net_host}
 \textbf{\textcolor{red}{WARNING:} The \ZCUxxx{} in OpenCPI network mode has only been tested using a CentOS7 development host.}
 
 % Bring in NFS setup snippet (has subsections)
 \input{../../../../snippets/NFS_Setup_Snippet.tex}
 %
-\\\\Note: You will need to add the \code{com.geontech.bsp.zcu1xx} (directory name \path{bsp_zcu1xx}) project to your list of exports (in \path{/etc/exports.d/user_ocpi.exports}).
+Note: You will need to add the \code{com.geontech.bsp.zcu1xx} (directory name \path{bsp_zcu1xx}) project to your list of exports (in \path{/etc/exports.d/user_ocpi.exports}).
 
 \pagebreak
 \section{Configuring the runtime environment on the platform}
@@ -581,18 +593,68 @@ $ hexdump test.input | less
 $ hexdump test.output | less
 \end{verbatim}
 
-\section{Running Reference Applications}
-Now that you have set up OpenCPI and the \ZCUxxx{} board, you can run the FSK reference application found in \code{assets/applications} in its testbench/file-read-write mode. This assumes that the build commands in Section~\ref{sec:Building OpenCPI projects} were run successfully.\\
+\begin{flushleft}
+\section{Other Example Applications}
+Now that you have set up OpenCPI and the \ZCUxxx{} board, you can run other example applications. This section calls out a few useful examples.\\
+\subsection{Demo Application from the Getting Started Guide}
+ANGRYVIPER's \textit{Getting Started Guide} located at \url{https://opencpi.github.io/Getting_Started.pdf} teaches users how to write VHDL workers, build an HDL assembly, and author an application. However, this document it pretty catered to simulator platforms such as Xilinx Vivado's \code{xsim}. That being said, it can be referenced for any HDL platform with some notes in mind for running on actual hardware:
+\begin{enumerate}
+\item The following artifacts are relevant for the demo application:
+\subitem - \textbf{Core Project}
+\begin{lstlisting}[showspaces=false]
+core/components/file_read.rcc/target-xilinx18_2/file_read.so
+core/components/file_write.rcc/target-xilinx18_2/file_write.so
+\end{lstlisting}
+\subitem - \textbf{Demo Project}
+\begin{lstlisting}[showspaces=false]
+demo_project/hdl/assemblies/demo_assembly/container-demo_assembly_zcu1*_base/target-zynq_ultra/demo_assembly_zcu1*_base.bin.gz
+\end{lstlisting}
+\item For Network Mode, the Demo Project will need to be added to the list of projects NFS mounted in Section~\ref{sec:net_scripts} and Section~\ref{sec:net_host}
+\item At runtime on the \ZCUxxx{}, \code{OCPI\_LIBRARY\_PATH} will need to be set and exported to point to all relevant artifacts
+\subitem - For Standalone Mode, these artifacts must be copied to the SD card
+\subitem - For Network Mode, these artifacts exist in the NFS mounted projects (e.g. \path{/mnt/ocpi_core})
+\item \code{make} cannot be used to run applications on the \ZCUxxx{} or any hardware platforms
+\subitem - Instead, use \code{ocpirun} on the \ZCUxxx{} to run the application XML
+\end{enumerate}
 
-\noindent To build the \code{fsk\_filerw} assembly and \code{FSK} application, run the following from the host:
+\newpage
+
+\subsection{FSK Application - File-Read-Write Mode}
+Another useful example application is the FSK reference application found in \code{assets/applications}. It can be run on the \ZCUxxx{} in its testbench/file-read-write mode. This section assumes that the build commands in Section~\ref{sec:Building OpenCPI projects} were run successfully.\\\medskip
+
+The following steps can be followed to run the FSK application in \code{filerw} mode on the \ZCUxxx{}:
+\begin{enumerate}
+\item To build the \code{fsk\_filerw} assembly and \code{FSK} application, run the following from the host:\smallskip
 \texttt{\\
 \$ ocpidev build hdl assembly fsk\_filerw -{}-hdl-platform \zcuxxx;\\
 \$ ocpidev build application FSK -{}-rcc-platform xilinx18\_2;
 }
-To run the application on the \ZCUxxx{}, the \code{OCPI\_LIBRARY\_PATH} must first be set to point to all build artifacts needed for this application.  For more information regarding the required \code{OCPI\_LIBRARY\_PATH} and other runtime requirements, reference the \textit{FSK\_App\_Getting\_Started\_Guide.pdf} and \textit{FSK\_app.pdf} documents. The application can be run \code{filerw} mode on the \ZCUxxx{}:
+\item The following artifacts are relevant for the application in this document:
+\subitem - \textbf{Core Project}
 \begin{lstlisting}[showspaces=false]
-$ ./target-xilinx18_2/FSK filerw
+core/components/file_read.rcc/target-xilinx18_2/file_read.so
+core/components/file_write.rcc/target-xilinx18_2/file_write.so
 \end{lstlisting}
+\subitem - \textbf{Assets Project}
+\begin{lstlisting}[showspaces=false]
+assets/components/dsp_comps/Baudtracking_simple.rcc/target-xilinx18_2/Baudtracking_simple.so
+assets/components/dsp_comps/real_digitizer.rcc/target-xilinx18_2/real_digitizer.so
+assets/hdl/assemblies/fsk_filerw/container-fsk_filerw_zcu1*_base/target-zynq_ultra/fsk_filerw_zcu1*_base.bin.gz
+\end{lstlisting}\medskip
+\item At runtime on the \ZCUxxx{}, \code{OCPI\_LIBRARY\_PATH} will need to be set and exported to point to all relevant artifacts
+\subitem - For Standalone Mode, these artifacts must be copied to the SD card
+\subitem - For Network Mode, these artifacts exist in the NFS mounted projects (e.g. \path{/mnt/ocpi_core})
+\item Navigate to the \path{FSK/} directory on the \ZCUxxx{}
+\subitem - For Standalone Mode, the entire \path{assets/applications/FSK/} directory must be copied to the SD card
+\subitem - For Network Mode, this should be in the NFS mounted assets project (\textit{e.g.} \path{/mnt/ocpi_assets/applications/FSK/})
+\item Run the FSK application in \code{filerw} mode on the \ZCUxxx{}:
+\texttt{\\
+\$ ./target-xilinx18\_2/FSK filerw
+}\\
+\end{enumerate}
+
+For more information regarding FSK application, reference the \href{https://opencpi.github.io/assets/FSK_App_Getting_Started_Guide.pdf}{\textit{FSK\_App\_Getting\_Started\_Guide.pdf}} and \href{https://opencpi.github.io/assets/FSK_App.pdf}{\textit{FSK\_app.pdf}} documents.
+\end{flushleft}
 \newpage
 
 \begin{appendices}
@@ -664,7 +726,7 @@ If you wish to generate RPMs with this OpenCPI installation packaged up, the fol
 \$ make rpm Platform=\zcuxxx{};
 }\\
 
-\noindent RPMs can now be found in \path{packages/target-*} for each target platform (\code{centos7}, \code{xilinx18\_2} and \code{\zcuxxx{}}).
+\noindent RPMs can now be found in \path{packaging/target-*} for each target platform (\code{centos7}, \code{xilinx18\_2} and \code{\zcuxxx{}}).
 
 \end{appendices}
 

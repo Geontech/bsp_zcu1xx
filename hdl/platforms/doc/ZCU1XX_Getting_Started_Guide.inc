@@ -85,8 +85,7 @@ This document provides steps for configuring a factory provided Xilinx \ZCUxxx{}
 \begin{flushleft}
 This guide assumes that, at a minimum, the following RPMs are installed:  \\
 \begin{table}[H]
-	\label{table:rpms}
-		\begin{tabularx}{\textwidth}{|c|X|}
+	\begin{tabularx}{\textwidth}{|c|X|}
 		\hline
 		\rowcolor{blue}
 		\textbf{RPM Name} & \textbf{Description} \\
@@ -98,8 +97,7 @@ Development Kit (CDK) and the source for the ocpi.core and ocpi.assets Projects 
 platforms, etc. \\
 		\hline
 		\path{opencpi-devel-*1.4_zynq_ultra.x86_64.rpm} &
-		Additional header files and scripts for developing new assets as HDL
-and/or RCC. \\
+		Additional header files and scripts for developing new assets as HDL and/or RCC. \\
 		\hline
 		\path{opencpi-sw-platform-xilinx18_2-*1.4_zynq_ultra.noarch.rpm} &
 		Additional files necessary to build the framework targeting specific
@@ -109,6 +107,8 @@ RCC/software platforms, independent of the final deployed hardware. \\
 		Additional files necessary to build the framework targeting specific hard-ware platform "X" when running RCC platform "Y" ("Y" can be "no sw"). This RPM also includes hardware-specific SD Card images when applicable. \\
 		\hline
 	\end{tabularx}
+	\caption{RPMs Required for Installation}
+	\label{table:rpms}
 \end{table}
 There is an IDE developed by the ANGRYVIPER team which is generally used for a more graphical development process in OpenCPI, but \textbf{the IDE has never been tested with the \ZCUxxx{} BSP}. \footnote{Users wishing to use the IDE can following the instructions in Appendix B of ANGRYVIPER's \href{https://opencpi.github.io/RPM_Installation_Guide.pdf}{\textit{RPM\_Installation\_Guide}} revision 1.4.}\\\medskip
 
@@ -117,6 +117,24 @@ Initial support for the Zynq UltraScale+ MPSoC/RFSoC was done in a fork of OpenC
 Note that the RFSoC is an architecture that builds on MPSoC by adding RF functionality. This OpenCPI release supports the Zynq UltraScale+ (on both the MPSoC and RFSoC devices), but \textbf{none of the RF capabilities of the RFSoC}.\\\medskip
 
 Appendix~\ref{sec:oss-build} details the process for building from source and generating RPMs from source. Building RPMs from source is useful for users that do not have access to the RPM files. If the framework is built and installed from source, it is possible for experienced users to use this source installation \textit{instead} of an RPM installation. This is particularly useful for users who will need to make changes to the OpenCPI framework itself. If choosing to use a source-build installation, Section~\ref{sec:copy-projects} can be skipped, and Appendix~\ref{sec:oss-build} can be referenced for project creation/cloning and registration.
+
+\subsection{RPM Installation of OpenCPI}
+If setting up an RPM installation of OpenCPI, the following prerequisites must be installed:
+\begin{verbatim}
+$ sudo yum install epel-release
+$ sudo yum install libXft.i686 libXext.i686
+\end{verbatim}
+To install OpenCPI itself from RPMs, make sure the RPMs listed in Table~\ref{table:rpms} are in the current directory, and run:
+\begin{verbatim}
+$ sudo yum install "opencpi*rpm"
+\end{verbatim}
+Add your user to the ``\code{opencpi}'' group:
+\begin{verbatim}
+$ sudo usermod -aG opencpi <user>
+\end{verbatim}
+where \code{<user>} is your username. Finally, log out and back in for these changes to take effect.\\\medskip
+
+Reference the \textit{RPM Installation Guide} for more information on this process.
 
 \subsection{Installation of required projects: \textit{core}, \textit{assets}, \textit{bsp\_zcu1xx} and \textit{sw\_xilinx18\_2}}
 \label{sec:copy-projects}
@@ -151,10 +169,10 @@ Project registry is located at: /opt/opencpi/cdk/../project-registry
 -----------------------------------------------------------------------------------------------
 | Project Package-ID         | Path to Project                                 | Valid/Exists |
 | ------------------         | ---------------                                 | ------------ |
-| ocpi.assets                | /home/<user>/ocpi_projects/assets               | True         |
-| ocpi.core                  | /home/<user>/ocpi_projects/core                 | True         |
 | com.geontech.bsp.zcu1xx    | /home/<user>/ocpi_projects/bsp_zcu1xx           | True         |
 | com.geontech.sw.xilinx18_2 | /home/<user>/ocpi_projects/sw_xilinx18_2        | True         |
+| ocpi.assets                | /home/<user>/ocpi_projects/assets               | True         |
+| ocpi.core                  | /home/<user>/ocpi_projects/core                 | True         |
 -----------------------------------------------------------------------------------------------
 \end{verbatim}
 
@@ -200,7 +218,7 @@ Next, perform steps \ref{step:1:build} through \ref{step:4:build} to build the p
 }\smallskip
 Note: when using a source OpenCPI installation, the directory option ``\code{-d bsp\_zcu1xx}'' will need to be changed to ``\code{-d bsps/bsp\_zcu1xx}'' since the project is cloned one directory deeper as per Appendix~\ref{sec:src-clone}.\\\medskip
 
-See the ANGRYVIPER Team's Getting Started Guide for additional information concerning the use of \code{ocpidev} to build OpenCPI assets.
+Together these commands may take many hours to complete. It is possible to narrow the items built in the \code{assets} project to speed up the build. See the ANGRYVIPER Team's Getting Started Guide for additional information concerning the use of \code{ocpidev} to build OpenCPI assets.
 
 \subsection{Hardware Setup and Requirements}
 \begin{itemize}
